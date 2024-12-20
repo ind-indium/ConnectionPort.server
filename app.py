@@ -9,6 +9,10 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # In-memory mapping of codes to files
 file_registry = {}
 
+@app.route('/testing')
+def testingfunc():
+    return "<h1><big>Testing ok</big></h1>"
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
