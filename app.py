@@ -2,8 +2,10 @@ import os
 import random
 import string
 from flask import Flask, request, jsonify, send_file, abort
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 UPLOAD_FOLDER = "uploads"
 TEXT_FOLDER = "texts"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
