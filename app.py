@@ -48,16 +48,17 @@ def upload():
 
 @app.route('/download/<code>', methods=['GET'])
 def download(code):
-    text_path = os.path.join(TEXT_FOLDER, f"{code}.txt")
-    if os.path.exists(text_path):
-        with open(text_path, "r") as f:
-            return jsonify({"message": "Text retrieved successfully", "text": f.read()})
-    
-    for file in os.listdir(UPLOAD_FOLDER):
-        if file.startswith(code):
-            return send_file(os.path.join(UPLOAD_FOLDER, file), as_attachment=True)
-    
-    return jsonify({"error": "Code not found"}), 404
+    # Locate file or text based on the code
+    for filename in os.listdir(UPLOAD_FOLDER):
+        if filename.startswith(code):
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            if filename.endswith('_text.txt'):  # Serve text as JSON
+                with open(file_path, 'r') as f:
+                    text_content = f.read()
+                return jsonify({'message': 'Text retrieved successfully', 'text': text_content}), 200
+            else:  # Serve file as an attachment
+                return send_file(file_path, as_attachment=True)
+    return jsonify({'error': 'Code not found'}), 404
 
 @app.route('/delete/<code>', methods=['DELETE'])
 def delete(code):
