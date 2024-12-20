@@ -19,21 +19,30 @@ def testingfunc():
 @app.route('/upload', methods=['POST'])
 def upload():
     code = generate_code()
-    text = request.form.get('text')
+    text = request.form.get('text', None)  # Ensure `text` defaults to None if not provided
     file = request.files.get('file')
 
-    if text:
+    if text and not file:
         text_path = os.path.join(TEXT_FOLDER, f"{code}.txt")
         with open(text_path, "w") as f:
             f.write(text)
-        return jsonify({"message": "Text shared successfully", "code": code})
+        return jsonify({"message": "Text shared successfully", "code": code}), 200
     
-    if file:
+    if file and not text:
         file_path = os.path.join(UPLOAD_FOLDER, f"{code}_{file.filename}")
         file.save(file_path)
-        return jsonify({"message": "File uploaded successfully", "code": code})
-    
-    return jsonify({"error": "No file or text provided"}), 400
+        return jsonify({"message": "File uploaded successfully", "code": code}), 200
+
+    if text and file:
+        text_path = os.path.join(TEXT_FOLDER, f"{code}.txt")
+        with open(text_path, "w") as f:
+            f.write(text)
+        file_path = os.path.join(UPLOAD_FOLDER, f"{code}_{file.filename}")
+        file.save(file_path)
+        return jsonify({"message": "Both text and file shared successfully", "code": code}), 200
+
+    return jsonify({"error": "No text or file provided"}), 400
+
 
 @app.route('/download/<code>', methods=['GET'])
 def download(code):
